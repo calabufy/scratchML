@@ -1,5 +1,4 @@
 from numpy import mean, abs, sign
-
 from scratchml.losses.base import BaseLoss
 
 
