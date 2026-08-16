@@ -57,7 +57,15 @@ $$
 Сильнее штрафует большие ошибки за счёт возведения в квадрат. Градиент:
 
 $$
-\frac{\partial MSE}{\partial \hat{y}_i} = \frac{2(\hat{y}_i-y_i)}{n}
+\begin{aligned}
+e_i &= \hat{y}_i-y_i, \\
+\frac{\partial MSE}{\partial e_i} &= \frac{2e_i}{n}, \\
+\frac{\partial e_i}{\partial \hat{y}_i} &= 1, \\
+\frac{\partial MSE}{\partial \hat{y}_i}
+&= \frac{\partial MSE}{\partial e_i}
+   \frac{\partial e_i}{\partial \hat{y}_i}
+ = \frac{2(\hat{y}_i-y_i)}{n}.
+\end{aligned}
 $$
 
 ### `MAE`
@@ -71,8 +79,17 @@ $$
 Соответствует среднему манхэттенскому расстоянию между истинными и предсказанными значениями. Градиент:
 
 $$
-\frac{\partial MAE}{\partial \hat{y}_i} = \frac{sign(\hat{y}_i-y_i)}{n}
+\begin{aligned}
+e_i &= \hat{y}_i-y_i, \\
+\frac{\partial |e_i|}{\partial e_i} &= sign(e_i), \\
+\frac{\partial e_i}{\partial \hat{y}_i} &= 1, \\
+\frac{\partial MAE}{\partial \hat{y}_i}
+&= \frac{1}{n}sign(e_i)
+ = \frac{sign(\hat{y}_i-y_i)}{n}.
+\end{aligned}
 $$
+
+В точке `e_i = 0` производная не определена, поэтому реализация использует значение `0`.
 
 ### `RMSE`
 
@@ -85,7 +102,17 @@ $$
 Выражается в тех же единицах, что и целевая переменная. Градиент:
 
 $$
-\frac{\partial RMSE}{\partial \hat{y}_i} = \frac{\hat{y}_i-y_i}{n \cdot RMSE}
+\begin{aligned}
+e_i &= \hat{y}_i-y_i, \\
+q &= \frac{1}{n}\sum_{j=1}^{n}e_j^2, \\
+RMSE &= \sqrt{q}, \\
+\frac{\partial q}{\partial \hat{y}_i} &= \frac{2e_i}{n}, \\
+\frac{\partial RMSE}{\partial q} &= \frac{1}{2\sqrt{q}}, \\
+\frac{\partial RMSE}{\partial \hat{y}_i}
+&= \frac{\partial RMSE}{\partial q}
+   \frac{\partial q}{\partial \hat{y}_i}
+ = \frac{\hat{y}_i-y_i}{n \cdot RMSE}.
+\end{aligned}
 $$
 
 Если `RMSE = 0`, класс возвращает нулевой градиент.
@@ -134,6 +161,32 @@ $$
 
 Класс обучает веса пакетным градиентным спуском: на каждой эпохе градиент рассчитывается по всей обучающей выборке, после чего параметры обновляются в направлении уменьшения ошибки.
 
+Для матрицы с добавленным столбцом единиц `X_*` и вектора коэффициентов `θ = [b, w]`:
+
+$$
+\begin{aligned}
+\hat{y} &= X_*\theta, \\
+g_{\hat{y}} &= \frac{\partial L}{\partial \hat{y}}, \\
+\frac{\partial \hat{y}}{\partial \theta} &= X_*, \\
+\nabla_{\theta}L
+&= \left(\frac{\partial \hat{y}}{\partial \theta}\right)^T
+   \frac{\partial L}{\partial \hat{y}}
+ = X_*^T g_{\hat{y}}.
+\end{aligned}
+$$
+
+Градиент регуляризации и итоговое обновление коэффициентов:
+
+$$
+\begin{aligned}
+R(w) &= l_1\sum_{j=1}^{p}|w_j| + l_2\sum_{j=1}^{p}w_j^2, \\
+\nabla_w R &= l_1 sign(w) + 2l_2w, \\
+\theta &\leftarrow \theta - \eta\left(X_*^Tg_{\hat{y}} + \nabla_{\theta}R\right).
+\end{aligned}
+$$
+
+Для свободного коэффициента `b` градиент регуляризации равен `0`.
+
 Параметры класса:
 
 - `learning_rate` - шаг обновления весов;
@@ -148,5 +201,3 @@ $$
 - `fit(X, y, loss_function)` обучает коэффициенты;
 - `predict(X)` возвращает `Xw + b`;
 - `score(X, y, loss_function)` возвращает значение переданной функции оценки.
-
-В текущей реализации `loss_function` в методе `fit` используется для заполнения `history_`, а градиент весов рассчитывается по квадратичной ошибке.

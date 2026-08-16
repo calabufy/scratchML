@@ -15,7 +15,7 @@ y = true_bias + X @ true_weights + noise
 
 # Create and train the linear regression model
 model = LinearRegression(learning_rate=0.01, epochs=1000, l1=0.1, l2=0.1)
-model.fit(X, y, loss_function=RMSE)
+model.fit(X, y, loss_function=RMSE())
 
 # Evaluate the model on the training data
 print("Coefficients:", model.coefficients_)
