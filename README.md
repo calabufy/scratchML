@@ -163,17 +163,17 @@ $$
 
 Для матрицы с добавленным столбцом единиц `X_*` и вектора коэффициентов `θ = [b, w]`:
 
-$$
+```math
 \begin{aligned}
-\hat{y} &= X_*\theta, \\
+\hat{y} &= X_{*}\theta, \\
 g_{\hat{y}} &= \frac{\partial L}{\partial \hat{y}}, \\
-\frac{\partial \hat{y}}{\partial \theta} &= X_*, \\
-\nabla_{\theta}L
+\frac{\partial \hat{y}}{\partial \theta} &= X_{*}, \\
+\nabla_{\theta} L
 &= \left(\frac{\partial \hat{y}}{\partial \theta}\right)^T
-   \frac{\partial L}{\partial \hat{y}}
- = X_*^T g_{\hat{y}}.
+\frac{\partial L}{\partial \hat{y}}
+= X_{*}^{T} g_{\hat{y}}.
 \end{aligned}
-$$
+```
 
 Градиент регуляризации и итоговое обновление коэффициентов:
 
