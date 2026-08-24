@@ -35,3 +35,17 @@ print("\nTest Metrics:")
 print("RMSE Loss:", round(RMSE().value(y_test, model.predict(X_test)), 4))
 print("MAE Loss:", round(MAE().value(y_test, model.predict(X_test)), 4))
 print("R2 Score:", round(R2().value(y_test, model.predict(X_test)), 4))
+
+ne_model = LinearRegression(solver="normal_equation")
+ne_model.fit(X, y)
+
+print("\nNormal Equation Coefficients:", ne_model.coefficients_)
+print("\nTraining Metrics:")
+print("RMSE Loss:", round(RMSE().value(y, ne_model.predict(X)), 4))
+print("MAE Loss:", round(MAE().value(y, ne_model.predict(X)), 4))
+print("R2 Score:", round(R2().value(y, ne_model.predict(X)), 4))
+
+print("\nTest Metrics:")
+print("RMSE Loss:", round(RMSE().value(y_test, ne_model.predict(X_test)), 4))
+print("MAE Loss:", round(MAE().value(y_test, ne_model.predict(X_test)), 4))
+print("R2 Score:", round(R2().value(y_test, ne_model.predict(X_test)), 4))

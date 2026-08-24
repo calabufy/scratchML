@@ -2,10 +2,9 @@ from numpy import asarray, concatenate, exp
 from numpy.random import default_rng
 from scratchml.models import LogisticRegression
 from scratchml.losses import BCE
-from scratchml.metrics import Precision, Recall, F1
+from scratchml.metrics import Accuracy, Precision, Recall, F1
 
 rng = default_rng(seed=42)
-
 # Generate synthetic data for logistic regression
 true_bias = -0.25
 true_weights = asarray([1.5, -2.0])
@@ -34,6 +33,7 @@ print("True Coefficients:", concatenate(([true_bias], true_weights)))
 print("Model Coefficients:", model.coefficients_)
 print("\nTraining Metrics:")
 print("BCE Loss:", round(BCE().value(y, model.predict_proba(X)), 4))
+print("Accuracy:", round(Accuracy().value(y, model.predict(X)), 4))
 print("Precision:", round(Precision().value(y, model.predict(X)), 4))
 print("Recall:", round(Recall().value(y, model.predict(X)), 4))
 print("F1_Score:", round(F1().score(y, model.predict(X)), 4))
@@ -41,6 +41,7 @@ print("F1_Score:", round(F1().score(y, model.predict(X)), 4))
 # Evaluate the model on the test data
 print("\nTest Metrics:")
 print("BCE Loss:", round(BCE().value(y_test, model.predict_proba(X_test)), 4))
+print("Accuracy:", round(Accuracy().value(y_test, model.predict(X_test)), 4))
 print("Precision:", round(Precision().value(y_test, model.predict(X_test)), 4))
 print("Recall:", round(Recall().value(y_test, model.predict(X_test)), 4))
 print("F1_Score:", round(F1().score(y_test, model.predict(X_test)), 4))
