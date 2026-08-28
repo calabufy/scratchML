@@ -17,7 +17,7 @@ class LinearRegression(BaseModel):
         self.history_ = []
 
     def _fit_normal_equation(self, X_augmented, y, loss_function=None):
-        """Fit the linear regression model using the normal equation."""
+        """Обучение линейной регрессии методом МНК."""
         if loss_function is not None:
             raise ValueError("loss_function is only used with gradient descent.")
 
@@ -33,36 +33,34 @@ class LinearRegression(BaseModel):
         return self
 
     def _fit_gradient_descent(self, X_augmented, y, loss_function=None):
-        """Fit the linear regression model to the training data."""
-        # If no loss function is provided, use 
-        # Mean Squared Error (MSE) as the default.
+        """Обучение линейной регрессии методом градиентного спуска."""
+        # Если функция ошибки не задана, то по умолчанию MSE()
         if loss_function is None:
             loss_function = MSE()
 
         self.coefficients_ = zeros(X_augmented.shape[1])
         self.history_ = []
 
-        # Perform gradient descent to optimize the coefficients
+        # Цикл градиентного спуска
         for _ in range(self.epochs):
-            # Compute predictions and gradients
+            # Вычисление предсказания
             y_pred = X_augmented @ self.coefficients_
-            # Compute the gradient of the loss function with respect to the coefficients
+            # Вычисление градиента функции по предсказаниям
             loss_gradient = loss_function.gradient(y, y_pred)
             gradient = X_augmented.T @ loss_gradient
 
-            # Add regularization gradients for L1 and L2 penalties
-            regularization_gradient = zeros(self.coefficients_.shape)
-            regularization_gradient[1:] += self.l1 * sign(self.coefficients_[1:])
-            regularization_gradient[1:] += 2 * self.l2 * self.coefficients_[1:]
+            # Добавление L1- и L2- регуляризации
+            regularization = zeros(self.coefficients_.shape)
+            regularization[1:] += self.l1 * sign(self.coefficients_[1:])
+            regularization[1:] += 2 * self.l2 * self.coefficients_[1:]
 
-            # Update coefficients using the learning rate and the computed gradient
-            gradient += regularization_gradient
-            self.coefficients_ -= self.learning_rate * gradient
+            # Обновление значений весов
+            self.coefficients_ -= self.learning_rate * (gradient + regularization)
 
-            # Compute and store the loss value for the current epoch
+            # Вычисление функции ошибки для history_
             y_pred = X_augmented @ self.coefficients_
             loss_value = loss_function.value(y, y_pred)
-            # Add regularization loss to the total loss
+            # Добавдение регуляризации
             regularization_loss = self.l1 * sum(abs(self.coefficients_[1:]))
             regularization_loss += self.l2 * sum(self.coefficients_[1:] ** 2)
             self.history_.append(loss_value + regularization_loss)
@@ -70,28 +68,29 @@ class LinearRegression(BaseModel):
         return self
 
     def fit(self, X, y, loss_function=None):
-        """Fit the linear regression model to the training data."""
+        """Пользовательская функция для обучения модели."""
         X = asarray(X, dtype=float)
         y = asarray(y, dtype=float).reshape(-1)
         
         if X.shape[0] != y.shape[0]:
             raise ValueError("Number of samples in X and y must be the same.")
         
-        # Augment the input features with a bias term (intercept)
+        # Добавление колонки из единиц для bias
         X_augmented = column_stack((ones(X.shape[0]), X))
 
+        # Выбор способа обучения
         if self.solver == "normal_equation":
             return self._fit_normal_equation(X_augmented, y, loss_function)
         elif self.solver == "gradient_descent":
             return self._fit_gradient_descent(X_augmented, y, loss_function)
 
     def predict(self, X):
-        """Predict the target values for the given input features."""
+        """Предсказание результата для X."""
         X = asarray(X, dtype=float)
         X_augmented = column_stack((ones(X.shape[0]), X))
         return X_augmented @ self.coefficients_
 
-    def score(self, X, y, loss_function):
-        """Evaluate the model's performance on the given data."""
+    def score(self, X, y, function):
+        """Вычисление занечиная метрики."""
         y_pred = self.predict(X)
-        return loss_function.value(y, y_pred)
+        return function.value(y, y_pred)
